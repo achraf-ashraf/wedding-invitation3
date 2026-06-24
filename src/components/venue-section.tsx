@@ -7,7 +7,7 @@ import { weddingData } from '@/lib/wedding-data';
 /**
  * قسم المكان (القاعة) — يدعم عدة أماكن
  * كل مكان يعرض:
- *  - عنوان القسم (حفل العشاء / حفل الزفاف)
+ *  - عنوان القسم (حفل الزفاف)
  *  - اسم القاعة
  *  - العنوان
  *  - خريطة جوجل ستالايت مدمجة (iframe)
@@ -26,7 +26,7 @@ type Venue = (typeof weddingData.venues)[number];
 function VenueCard({ venue }: { venue: Venue }) {
   return (
     <div className="w-full flex flex-col items-center">
-      {/* عنوان القسم — حفل العشاء / حفل الزفاف */}
+      {/* عنوان القسم — حفل الزفاف */}
       <motion.div
         {...reveal}
         className="flex flex-col items-center gap-3 mb-6 w-full max-w-full"
@@ -253,7 +253,7 @@ export function VenueSection() {
         <div className="w-24 h-px flex-shrink-0" style={{ backgroundColor: 'rgba(250, 248, 242, 0.6)' }} />
       </motion.div>
 
-      {/* بطاقات الأماكن — حفل العشاء أولاً ثم حفل الزفاف */}
+      {/* بطاقات الأماكن — حفل الزفاف */}
       <div className="w-full flex flex-col items-center gap-12">
         {weddingData.venues.map((venue, i) => (
           <VenueCard key={i} venue={venue} />

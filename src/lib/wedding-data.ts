@@ -45,25 +45,8 @@ export const weddingData = {
     type: "زفاف",
   },
 
-  // مكان الحفل — مكانان: حفل العشاء + حفل الزفاف
+  // مكان الحفل — حفل الزفاف فقط
   venues: [
-    {
-      title: "حفل العشاء",
-      name: "Espace Lella Khadija",
-      subtitle: "Salle de fêtes",
-      address: "صفاقس، تونس",
-      addressFr: "Sfax, Tunisie",
-      city: "Sfax, Tunisie",
-      lat: 34.7375616,
-      lng: 10.6856532,
-      mapsUrl: "https://maps.app.goo.gl/TL89LJqMKCqQzvkC9",
-      mapsEmbedUrl: "https://www.google.com/maps?q=Espace+Lella+Khadija+Sfax&z=16&output=embed&t=k",
-      mapsLabel: "Espace Lella Khadija pour Les Fetes, Sfax, Tunisie",
-      // معلومات حفل العشاء
-      date: "22 جويلية 2026",
-      time: "من السابعة مساءً حتى العاشرة ليلاً",
-      note: "تقام الحفلة الغنائية بعد العشاء",
-    },
     {
       title: "حفل الزفاف",
       name: "Le Palace Miami Salle de fêtes",
