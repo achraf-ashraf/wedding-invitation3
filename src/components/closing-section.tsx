@@ -147,52 +147,42 @@ function CelebrationFountain({ active }: { active: boolean }) {
 
     const animate = (now: number) => {
       const elapsed = (now - startTimeRef.current) / 1000;
-      const SPAWN_DURATION = 6;
-      const TOTAL_DURATION = 12;
 
-      if (elapsed > TOTAL_DURATION) {
-        particlesRef.current = [];
-        // Defer state update to next frame
-        const id = requestAnimationFrame(() => setParticles([]));
-        return;
-      }
-
-      // إطلاق جسيمات جديدة
-      if (elapsed < SPAWN_DURATION) {
-        const spawnInterval = 80;
-        if (now - lastSpawnRef.current > spawnInterval) {
-          lastSpawnRef.current = now;
-          const newParticles: Particle[] = [];
-          const count = 1 + Math.floor(Math.random() * 3);
-          for (let i = 0; i < count; i++) {
-            const isButterfly = Math.random() > 0.45;
-            const centerBias = (Math.random() - 0.5) * 0.3;
-            const startX = 0.5 + centerBias;
-            const isLeftStart = Math.random() > 0.5;
-            newParticles.push({
-              id: now + i + Math.random(),
-              startX,
-              startY: 1.02,
-              velocityX: (isLeftStart ? -1 : 1) * (Math.random() * 1.5 + 0.5) * 60,
-              velocityY: -(Math.random() * 3 + 4) * 80,
-              gravity: 80 + Math.random() * 40,
-              type: isButterfly ? 'butterfly' : 'petal',
-              size: isButterfly
-                ? 24 + Math.random() * 28
-                : 14 + Math.random() * 18,
-              color: isButterfly
-                ? BUTTERFLY_COLORS[Math.floor(Math.random() * BUTTERFLY_COLORS.length)]
-                : PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)],
-              rotation: Math.random() * 360,
-              rotationSpeed: (Math.random() - 0.5) * 180,
-              flutterPhase: Math.random() * Math.PI * 2,
-              flutterSpeed: 4 + Math.random() * 4,
-              life: 0,
-              maxLife: 4 + Math.random() * 3,
-            });
-          }
-          particlesRef.current = [...particlesRef.current, ...newParticles];
+      // إطلاق جسيمات جديدة بشكل مستمر طالما النافورة فعّالة
+      // (لا حد أقصى للمدة — الإيقاف يتم عبر prop active)
+      const spawnInterval = 220; // أبطأ: دفعة كل 220 مللي ثانية (كانت 80)
+      if (now - lastSpawnRef.current > spawnInterval) {
+        lastSpawnRef.current = now;
+        const newParticles: Particle[] = [];
+        const count = 1 + Math.floor(Math.random() * 2); // 1-2 جسيمات فقط (أخف)
+        for (let i = 0; i < count; i++) {
+          const isButterfly = Math.random() > 0.45;
+          const centerBias = (Math.random() - 0.5) * 0.3;
+          const startX = 0.5 + centerBias;
+          const isLeftStart = Math.random() > 0.5;
+          newParticles.push({
+            id: now + i + Math.random(),
+            startX,
+            startY: 1.02,
+            velocityX: (isLeftStart ? -1 : 1) * (Math.random() * 1.5 + 0.5) * 60,
+            velocityY: -(Math.random() * 3 + 4) * 80,
+            gravity: 80 + Math.random() * 40,
+            type: isButterfly ? 'butterfly' : 'petal',
+            size: isButterfly
+              ? 24 + Math.random() * 28
+              : 14 + Math.random() * 18,
+            color: isButterfly
+              ? BUTTERFLY_COLORS[Math.floor(Math.random() * BUTTERFLY_COLORS.length)]
+              : PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)],
+            rotation: Math.random() * 360,
+            rotationSpeed: (Math.random() - 0.5) * 180,
+            flutterPhase: Math.random() * Math.PI * 2,
+            flutterSpeed: 4 + Math.random() * 4,
+            life: 0,
+            maxLife: 5 + Math.random() * 3, // تعيش أطول قليلاً (5-8 ثوانٍ)
+          });
         }
+        particlesRef.current = [...particlesRef.current, ...newParticles];
       }
 
       // تحديث مواقع الجسيمات
@@ -272,29 +262,35 @@ function CelebrationFountain({ active }: { active: boolean }) {
 // ============================================================
 
 export function ClosingSection() {
-  const sectionRef = useRef<HTMLElement | null>(null);
   const [celebrationActive, setCelebrationActive] = useState(false);
 
-  // فعّل النافورة عند وصول المستخدم للقسم
+  // فعّل النافورة عند تمرير المستخدم في أي مكان بالصفحة
+  // النافورة تبقى فعّالة طالما المستخدم يتمرّر، وتتوقف 2 ثانية بعد آخر تمرير
   useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
+    let inactivityTimer: ReturnType<typeof setTimeout> | null = null;
+    let lastTrigger = 0;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.4) {
-            setCelebrationActive(true);
-            // أوقف النافورة بعد 12 ثانية
-            setTimeout(() => setCelebrationActive(false), 12000);
-            observer.disconnect();
-          }
-        });
-      },
-      { threshold: [0, 0.4, 0.7] }
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
+    const onScroll = () => {
+      const now = Date.now();
+      // اختصار: لا تطلق أكثر من مرة كل 400 مللي ثانية
+      if (now - lastTrigger < 400) return;
+      lastTrigger = now;
+
+      // فعّل النافورة
+      setCelebrationActive(true);
+
+      // أعد ضبط مؤقت الإيقاف — النافورة تبقى فعّالة طالما المستخدم يتمرّر
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        setCelebrationActive(false);
+      }, 2000); // أوقف بعد 2 ثانية من آخر تمرير
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (inactivityTimer) clearTimeout(inactivityTimer);
+    };
   }, []);
 
   const reveal = {
@@ -310,7 +306,6 @@ export function ClosingSection() {
       <CelebrationFountain active={celebrationActive} />
 
       <section
-        ref={sectionRef}
         id="closing"
         className="relative w-full py-8 px-4 sm:px-6 flex flex-col items-center text-center overflow-x-hidden"
       >
