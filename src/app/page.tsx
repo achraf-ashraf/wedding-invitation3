@@ -146,7 +146,7 @@ function OpeningAnimationStage({
         playsInline
         preload="auto"
       />
-      {/* نص "TAP TO OPEN" — مركز الشاشة فوق الباب */}
+      {/* نص "إضغط هنا" — مركز الشاشة فوق الباب */}
       {!started && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -183,7 +183,7 @@ function OpeningAnimationStage({
               fontWeight: 500,
             }}
           >
-            Tap to Open
+            إضغط هنا
           </span>
         </motion.div>
       )}
