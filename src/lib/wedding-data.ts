@@ -1,13 +1,15 @@
 // Wedding invitation data — fully Arabic, RTL
 // محتوى دعوة الزفاف بالكامل بالعربية
+// العريس: أشرف بن روينة  •  العروس: آمنة التريكي
+// التاريخ: الجمعة 24 جويلية 2026
 
 export const weddingData = {
   // معلومات العريسين
   couple: {
-    name1: "غسان بن روينة",
-    name2: "نهى العارم",
+    name1: "أشرف بن روينة",
+    name2: "آمنة التريكي",
     familyGroom: "عائلة خالد بن روينة",
-    headline: "غسان\nو\nنهى",
+    headline: "أشرف\nو\nآمنة",
   },
 
   // النص الافتتاحي (بسم الله، الآية، دعوة العائلة)
@@ -20,26 +22,26 @@ export const weddingData = {
       "بعد إهدائكم عاطر التحية وأزكى السلام",
       "تتشرف عائلتا",
       "السيد خالد بن روينة وحرمه",
-      "والحاج المبروك بن العارم وحرمه",
+      "والسيد مصطفى التريكي وحرمه",
       "بدعوتكم أنتم وعائلتكم الكريمة لحضور حفل زفاف ابنيهما",
-      "غسان بن روينة",
+      "أشرف بن روينة",
       "على الآنسة الكريمة",
-      "نهى العارم",
+      "آمنة التريكي",
     ],
   },
 
   // معلومات الحفل
   event: {
-    date: "2026-07-30",
+    date: "2026-07-24",
     startTime: "21:00",
     endTime: "01:00",
-    startDateISO: "2026-07-30T21:00:00",
-    endDateISO: "2026-07-31T01:00:00",
+    startDateISO: "2026-07-24T21:00:00",
+    endDateISO: "2026-07-25T01:00:00",
     // عربي (بأرقام لاتينية، شهر "جويلية")
-    dateDisplayAr: "30 جويلية 2026",
-    dateLongAr: "الخميس 30 جويلية 2026",
+    dateDisplayAr: "24 جويلية 2026",
+    dateLongAr: "الجمعة 24 جويلية 2026",
     timeDisplayAr: "من 9:00 مساءً حتى 1:00 صباحاً",
-    title: "حفل زفاف غسان و نهى",
+    title: "حفل زفاف أشرف و آمنة",
     type: "زفاف",
   },
 
@@ -75,7 +77,7 @@ export const weddingData = {
       mapsEmbedUrl: "https://www.google.com/maps?q=Le+Palace+Miami+salle+des+fetes+Sfax&z=16&output=embed&t=k",
       mapsLabel: "Le Palace Miami salle des fetes, Complexe sportif Miami, Sidi Mansour Road, Sfax 3094, Tunisie",
       // معلومات حفل الزفاف
-      date: "30 جويلية 2026",
+      date: "24 جويلية 2026",
       time: "من 9:00 مساءً حتى 1:00 صباحاً",
       note: "",
     },
@@ -98,16 +100,14 @@ export const weddingData = {
   contacts: [
     {
       role: "العريس",
-      name: "غسان بن روينة",
-      // رقم للاتصال فقط (تونس)
-      callOnly: "+21620289050",
+      name: "أشرف بن روينة",
       // رقم للاتصال + واتساب (قطر)
-      callAndWhatsapp: "+97455786597",
+      callAndWhatsapp: "+97431481698",
     },
     {
       role: "والد العريس",
       name: "خالد بن روينة",
-      // رقم للاتصال + واتساب
+      // رقم للاتصال + واتساب (تونس)
       callAndWhatsapp: "+21626464509",
     },
   ],
@@ -124,7 +124,7 @@ export const weddingData = {
     calligraphyImage: "/wooow/images/closing-calligraphy.jpeg",
   },
 
-  // السمة — Enchanted (مستوحاة من Vowlee)
+  // السمة — Fairy Tale intro (مستوحاة من Vowlee Paris)
   theme: {
     id: "enchanted",
     name: "Enchanted",
@@ -141,7 +141,7 @@ export const weddingData = {
     envelopeFontStyle: "Reem Kufi",
     envelopeTextColor: "#FAF8F2",
     dateFontStyle: "Reem Kufi",
-    // Vowlee "Enchanted" intro video (floral archway) - mobile version works on all screens
+    // Fairy Tale intro video (vertical, 8s) — تم استبداله بالفيديو الجديد
     openingAnimation: "/wooow/videos/enchanted-opening-mobile.mp4",
     openingPoster: "/wooow/images/enchanted-opening-poster.jpg",
     // Invitation background image (lace/pearls/bride-groom frame)
@@ -167,11 +167,11 @@ export const weddingData = {
     embroideryBlush: "/wooow/images/embroidery-blush-bg.png",
   },
 
-  // الموسيقى — ملف MP3 محلي
+  // الموسيقى — ملف MP3 محلي (حسين الجسمي - ادخلي أمري)
   music: {
     type: "mp3",
     src: "/wooow/audio/wedding-music.mp3",
-    title: "حسين الجسمي - فستانك الأبيض",
+    title: "حسين الجسمي - ادخلي أمري",
     author: "Hussain Al Jassmi | حسين الجسمي",
     thumbnail: "/wooow/audio/song-thumbnail.jpg",
   },

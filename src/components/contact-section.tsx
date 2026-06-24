@@ -202,7 +202,7 @@ function ContactCard({ role, name, callOnly, callAndWhatsapp, delay }: ContactCa
       {/* زر الواتساب (إن وُجد) — تحت الأرقام مباشرة */}
       {callAndWhatsapp && (
         <a
-          href={`https://wa.me/${toWhatsapp(callAndWhatsapp)}?text=${encodeURIComponent('السلام عليكم، بخصوص دعوة زفاف غسان و نهى')}`}
+          href={`https://wa.me/${toWhatsapp(callAndWhatsapp)}?text=${encodeURIComponent('السلام عليكم، بخصوص دعوة زفاف أشرف و آمنة')}`}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-3 flex items-center justify-center gap-2 w-full px-3 py-2 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -283,7 +283,7 @@ export function ContactSection() {
             key={c.name}
             role={c.role}
             name={c.name}
-            callOnly={c.callOnly}
+            callOnly={(c as { callOnly?: string }).callOnly}
             callAndWhatsapp={c.callAndWhatsapp}
             delay={i * 0.15}
           />

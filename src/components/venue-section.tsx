@@ -21,7 +21,9 @@ const reveal = {
   transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] as const },
 };
 
-function VenueCard({ venue }: { venue: typeof weddingData.venues[0] }) {
+type Venue = (typeof weddingData.venues)[number];
+
+function VenueCard({ venue }: { venue: Venue }) {
   return (
     <div className="w-full flex flex-col items-center">
       {/* عنوان القسم — حفل العشاء / حفل الزفاف */}

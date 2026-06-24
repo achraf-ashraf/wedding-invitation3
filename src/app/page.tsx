@@ -11,13 +11,30 @@ import { ClosingSection } from '@/components/closing-section';
 
 type Stage = 'opening' | 'invitation';
 
+// مدة فيديو الافتتاح: 8 ثوانٍ (fairytale-theme-S6-_Gk0h.mp4)
+// نقسمها إلى: 7.2 ثانية تشغيل كامل + 0.8 ثانية fade-out سلسة
+const OPENING_VIDEO_DURATION_MS = 8000;
+const FADE_OUT_MS = 800;
+const STAGE_TRANSITION_MS = OPENING_VIDEO_DURATION_MS - FADE_OUT_MS;
+
 export default function Home() {
   const [stage, setStage] = useState<Stage>('opening');
   const [started, setStarted] = useState(false);
   const [musicOn, setMusicOn] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const stageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // تنظيف المؤقتات عند إزالة المكوّن
+  useEffect(() => {
+    return () => {
+      if (stageTimerRef.current) clearTimeout(stageTimerRef.current);
+      if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+    };
+  }, []);
 
   // المستخدم يضغط الشاشة لبدء الأنيميشن + الموسيقى معاً
   const handleStart = () => {
@@ -40,10 +57,15 @@ export default function Home() {
       v.play().catch(() => {});
     }
 
-    // بعد انتهاء الأنيميشن، انتقل مباشرة للدعوة
-    setTimeout(() => {
+    // ابدأ fade-out قبل نهاية الفيديو بقليل لانتقال سلس
+    fadeTimerRef.current = setTimeout(() => {
+      setFadeOut(true);
+    }, STAGE_TRANSITION_MS);
+
+    // بعد انتهاء الفيديو، انتقل إلى الدعوة
+    stageTimerRef.current = setTimeout(() => {
       setStage('invitation');
-    }, 4900);
+    }, OPENING_VIDEO_DURATION_MS);
   };
 
   const toggleMusic = () => {
@@ -95,6 +117,7 @@ export default function Home() {
             key="opening"
             videoRef={videoRef}
             started={started}
+            fadeOut={fadeOut}
             onStart={handleStart}
           />
         )}
@@ -110,14 +133,17 @@ export default function Home() {
    المرحلة 1 — أنيميشن الافتتاح
    الصورة الزخرفية تُعرض فوراً (poster) بينما يُحمّل الفيديو في الخلفية.
    عند الضغط: يبدأ الفيديو من البداية + الموسيقى معاً.
+   انتقال سلس: fade-out للفيديو + zoom خفيف في نهايته.
    ============================================================ */
 function OpeningAnimationStage({
   videoRef,
   started,
+  fadeOut,
   onStart,
 }: {
   videoRef: React.RefObject<HTMLVideoElement | null>;
   started: boolean;
+  fadeOut: boolean;
   onStart: () => void;
 }) {
   return (
@@ -125,27 +151,50 @@ function OpeningAnimationStage({
       key="opening"
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0 }}
+      transition={{ duration: 0.6, ease: 'easeInOut' }}
       onClick={onStart}
-      className="absolute inset-0 z-20 bg-black flex items-center justify-center cursor-pointer"
+      className="absolute inset-0 z-20 bg-black flex items-center justify-center cursor-pointer overflow-hidden"
     >
-      {/* صورة Poster — تُعرض فوراً (الباب المغلق مع قوس الزهور - من بداية الفيديو) */}
-      <img
+      {/* صورة Poster — تُعرض فوراً (قبل تشغيل الفيديو) */}
+      <motion.img
         src={weddingData.theme.openingPoster}
         alt=""
         className="absolute inset-0 w-full h-full object-cover"
         style={{ zIndex: 1 }}
+        animate={{
+          opacity: started ? 0 : 1,
+          scale: started ? 1.05 : 1,
+        }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
       />
-      {/* فيديو الأنيميشن — يبدأ فقط بعد الضغط */}
-      <video
+
+      {/* فيديو الأنيميشن — يبدأ فقط بعد الضغط، مع انتقال سلس عند الانتهاء */}
+      <motion.video
         ref={videoRef}
         src={weddingData.theme.openingAnimation}
         className="absolute inset-0 w-full h-full object-cover"
-        style={{ zIndex: 2, opacity: started ? 1 : 0 }}
+        style={{ zIndex: 2 }}
+        animate={{
+          opacity: started ? (fadeOut ? 0 : 1) : 0,
+          scale: fadeOut ? 1.08 : 1,
+        }}
+        transition={{
+          opacity: { duration: fadeOut ? 0.8 : 0.5, ease: 'easeInOut' },
+          scale: { duration: 0.8, ease: 'easeOut' },
+        }}
         muted
         playsInline
         preload="auto"
       />
+
+      {/* طبقة vignette خفيفة لتحسين تباين النص */}
+      <div
+        className="absolute inset-0 z-[3] pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)',
+        }}
+      />
+
       {/* نص "إضغط هنا" — مركز الشاشة فوق الباب */}
       {!started && (
         <motion.div
@@ -171,16 +220,15 @@ function OpeningAnimationStage({
               <path d="M8 5v14l11-7z" />
             </svg>
           </motion.div>
-          {/* النص */}
+          {/* النص — خط عربي فاخر بدون تباعد بين الأحرف */}
           <span
-            className="text-base sm:text-lg"
+            className="text-2xl sm:text-3xl"
             style={{
-              fontFamily: 'var(--font-reem-kufi)',
+              fontFamily: 'var(--font-aref-ruqaa)',
               color: '#FAF8F2',
-              textShadow: '0 2px 16px rgba(0,0,0,1)',
-              letterSpacing: '0.4em',
-              textTransform: 'uppercase',
-              fontWeight: 500,
+              textShadow: '0 2px 16px rgba(0,0,0,1), 0 4px 24px rgba(0,0,0,0.85)',
+              letterSpacing: '0.02em',
+              fontWeight: 700,
             }}
           >
             إضغط هنا
@@ -197,6 +245,7 @@ function OpeningAnimationStage({
    - خلفية ثابتة (لا فيديو متكرر)
    - ألوان: وردي فاتح + بنفسجي-رمادي + كحلي داكن
    - أقسام بألوان متبادلة
+   انتقال دخول ناعم بعد انتهاء فيديو الافتتاح.
    ============================================================ */
 function InvitationStage() {
   // تباعد عمودي موحّد بين كل الكتل (متناظر)
@@ -210,43 +259,28 @@ function InvitationStage() {
     transition: { duration: 0.5, ease: 'easeOut' as const },
   };
 
-  // نفس الإعداد لكن مع scale للعناصر الكبيرة (الأسماء)
-  const revealScale = {
-    initial: { opacity: 0, scale: 0.9 },
-    whileInView: { opacity: 1, scale: 1 },
-    viewport: { once: true, amount: 0.3 },
-    transition: { duration: 1.1, ease: 'easeOut' as const },
-  };
-
-  // ألوان Vowlee Enchanted
-  const colors = {
-    bodyBg: '#EAD7E5',         // وردي فاتح
-    sectionBg: '#726C82',      // بنفسجي-رمادي
-    sectionAltBg: '#0E1225',   // كحلي داكن
-    text: '#FAF8F2',           // أبيض كريمي
-  };
-
   return (
     <motion.section
       key="invitation"
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, scale: 1.02 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
       className="relative z-30 w-full min-h-screen"
     >
       {/* ============================================================
           الخلفية — ثابتة (fixed) لكامل الشاشة، مستقلة عن النص
           تغطي كل الشاشة على كل الأجهزة بدون حواف
           ============================================================ */}
-      <div
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2, ease: 'easeOut' }}
         className="fixed inset-0 z-0"
         style={{
           backgroundImage: `url(${weddingData.theme.invitationBackground})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center center',
           backgroundRepeat: 'no-repeat',
-          // لا نستخدم backgroundAttachment: fixed لأنها تسبب مشاكل على iOS
-          // بدلاً من ذلك، العنصر نفسه fixed
         }}
       />
       {/* طبقة تدرّج خفيفة لتحسين وضوح النص */}
@@ -424,7 +458,7 @@ function InvitationStage() {
             بدعوتكم أنتم وعائلتكم الكريمة لحضور حفل زفاف ابنيهما
           </motion.p>
 
-          {/* 9. اسم العريس — يظهر تاسعاً */}
+          {/* 11. اسم العريس — يظهر تاسعاً */}
           <motion.p
             initial={{ opacity: 0, scale: 0.85, filter: 'blur(10px)' }}
             whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
@@ -442,7 +476,7 @@ function InvitationStage() {
             أشرف بن روينة
           </motion.p>
 
-          {/* 10. نص الرابط: على الآنسة الكريمة — يظهر عاشراً */}
+          {/* 12. نص الرابط: على الآنسة الكريمة */}
           <motion.p
             initial={{ opacity: 0, y: 35, filter: 'blur(6px)' }}
             whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -458,7 +492,7 @@ function InvitationStage() {
             على الآنسة الكريمة
           </motion.p>
 
-          {/* 11. اسم العروس — يظهر حادياً عشر */}
+          {/* 13. اسم العروس */}
           <motion.p
             initial={{ opacity: 0, scale: 0.85, filter: 'blur(10px)' }}
             whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
@@ -476,7 +510,7 @@ function InvitationStage() {
             آمنة التريكي
           </motion.p>
 
-          {/* 12. فاصل — يظهر ثاني عشر */}
+          {/* 14. فاصل */}
           <motion.div
             initial={{ scaleX: 0, opacity: 0 }}
             whileInView={{ scaleX: 1, opacity: 1 }}
@@ -486,7 +520,7 @@ function InvitationStage() {
             style={{ backgroundColor: 'rgba(250, 248, 242, 0.7)', boxShadow: '0 0 12px rgba(250,248,242,0.5)' }}
           />
 
-          {/* 13. التاريخ — يظهر ثالث عشر */}
+          {/* 15. التاريخ */}
           <motion.span
             initial={{ opacity: 0, y: 40, filter: 'blur(6px)' }}
             whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -502,7 +536,7 @@ function InvitationStage() {
             {weddingData.event.dateLongAr}
           </motion.span>
 
-          {/* 14. الوقت — يظهر رابع عشر */}
+          {/* 16. الوقت */}
           <motion.span
             initial={{ opacity: 0, y: 40, filter: 'blur(6px)' }}
             whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}

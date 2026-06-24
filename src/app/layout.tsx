@@ -30,8 +30,8 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "دعوة زفاف | غسان و نهى",
-  description: "تتشرف عائلة خالد بن روينة بدعوتكم لحضور حفل زفاف ابنهم غسان على نهى العارم — 30 يوليو 2026",
+  title: "دعوة زفاف | أشرف و آمنة",
+  description: "تتشرف عائلة خالد بن روينة بدعوتكم لحضور حفل زفاف ابنهم أشرف على آمنة التريكي — 24 جويلية 2026",
 };
 
 export default function RootLayout({

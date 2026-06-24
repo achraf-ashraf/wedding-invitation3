@@ -393,7 +393,7 @@ export function ClosingSection() {
               lineHeight: 1.2,
             }}
           >
-            غسان و نهى
+            أشرف و آمنة
           </p>
           <p
             className="text-lg sm:text-xl italic opacity-80 mt-3"
@@ -402,7 +402,7 @@ export function ClosingSection() {
               color: '#ffffff',
             }}
           >
-            30 جويلية 2026
+            {weddingData.event.dateDisplayAr}
           </p>
           {/* Save the Date — خط مختلف، حجم أكبر قليلاً */}
           <p
